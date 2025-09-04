@@ -1,0 +1,84 @@
+{
+  "eras": [
+    {
+      "id": "ancient_world",
+      "name": "Pré-História e Mundo Antigo",
+      "topics": [
+        {
+          "id": "cuneiform_script",
+          "title": "A Invenção da Escrita Cuneiforme",
+          "dateRange": "c. 3.400 a.C.",
+          "coordinates": { "lat": 33.3, "lon": 44.4 },
+          "content": "<p>Considerado um dos primeiros sistemas de escrita da humanidade, o cuneiforme foi desenvolvido pelos Sumérios na antiga Mesopotâmia. Usando estiletes em forma de cunha para fazer marcas em tábuas de argila, essa invenção revolucionou a forma como a informação era registrada e transmitida, permitindo o surgimento de registros históricos, literatura e administração complexa.</p><strong>Impacto Fundamental:</strong><ul><li>Preservação do conhecimento.</li><li>Fundação para a administração de impérios.</li><li>Início da história registrada.</li></ul>"
+        },
+        {
+          "id": "library_of_alexandria",
+          "title": "A Biblioteca de Alexandria",
+          "dateRange": "c. 285–246 a.C.",
+          "coordinates": { "lat": 31.2, "lon": 29.9 },
+          "content": "<p>A Grande Biblioteca de Alexandria foi uma das maiores e mais significativas bibliotecas do mundo antigo. Ela visava reunir todo o conhecimento do mundo e abrigou obras de grandes pensadores como Euclides, Arquimedes e Eratóstenes. Embora seu fim seja trágico, seu ideal de um repositório central de conhecimento humano inspira instituições até hoje.</p><strong>Áreas de Conhecimento:</strong><ul><li>Matemática e Geometria</li><li>Astronomia</li><li>Medicina</li><li>Filosofia e Literatura</li></ul>"
+        }
+      ]
+    },
+    {
+      "id": "scientific_revolution",
+      "name": "Renascimento e Revolução Científica",
+      "topics": [
+        {
+          "id": "copernican_heliocentrism",
+          "title": "Modelo Heliocêntrico de Copérnico",
+          "dateRange": "1543",
+          "coordinates": { "lat": 53.1, "lon": 18.6 },
+          "content": "<p>Em sua obra <em>'De revolutionibus orbium coelestium'</em>, Nicolau Copérnico propôs um modelo cosmológico que colocava o Sol no centro do universo, com a Terra e outros planetas orbitando ao seu redor. Essa teoria desafiou o modelo geocêntrico de Ptolomeu, que durava séculos, e lançou as bases para a astronomia moderna, sendo um pilar da Revolução Científica.</p><strong>Mudança de Paradigma:</strong><p>A transição do geocentrismo para o heliocentrismo não foi apenas uma mudança astronômica, mas uma profunda transformação na percepção da humanidade sobre seu lugar no cosmos.</p>"
+        },
+        {
+          "id": "newton_principia",
+          "title": "As Leis de Newton e a Gravitação Universal",
+          "dateRange": "1687",
+          "coordinates": { "lat": 52.2, "lon": 0.12 },
+          "content": "<p>A publicação de <em>'Philosophiæ Naturalis Principia Mathematica'</em> por Isaac Newton é um marco na história da ciência. Nela, Newton formulou as três leis do movimento e a lei da gravitação universal. Essas leis descreveram o movimento dos objetos na Terra e dos corpos celestes com uma precisão sem precedentes, unificando a física terrestre e a celeste sob um único conjunto de princípios matemáticos.</p><strong>Princípios Fundamentais:</strong><ul><li>Lei da Inércia</li><li>Lei da Força e Aceleração (F=ma)</li><li>Lei da Ação e Reação</li></ul>"
+        }
+      ]
+    },
+    {
+      "id": "modern_era",
+      "name": "Era Moderna e Avanços Médicos",
+      "topics": [
+        {
+          "id": "penicillin_discovery",
+          "title": "A Descoberta da Penicilina",
+          "dateRange": "1928",
+          "coordinates": { "lat": 51.5, "lon": -0.12 },
+          "content": "<p>A descoberta acidental do fungo <em>Penicillium notatum</em> por Alexander Fleming revolucionou a medicina. A penicilina foi o primeiro antibiótico do mundo, uma substância capaz de matar uma vasta gama de bactérias infecciosas. Sua introdução na prática médica salvou incontáveis vidas e marcou o início da era dos antibióticos, transformando o tratamento de infecções bacterianas, de feridas de guerra a doenças comuns.</p><strong>Impacto na Saúde Global:</strong><p>Aumento drástico da expectativa de vida e viabilização de procedimentos cirúrgicos complexos que antes eram excessivamente arriscados devido à ameaça de infecção.</p>"
+        },
+        {
+          "id": "human_genome_project",
+          "title": "Projeto Genoma Humano",
+          "dateRange": "1990 - 2003",
+          "coordinates": { "lat": 38.9, "lon": -77.0 },
+          "content": "<p>O Projeto Genoma Humano foi um esforço colaborativo internacional para mapear e sequenciar todos os genes do ser humano. A conclusão deste projeto monumental forneceu um 'manual de instruções' da nossa espécie, acelerando a pesquisa biomédica de forma exponencial. Ele abriu as portas para a medicina personalizada, a terapia gênica e uma compreensão muito mais profunda de doenças como câncer e Alzheimer.</p><strong>Novas Fronteiras da Medicina:</strong><ul><li>Diagnóstico genético de doenças.</li><li>Desenvolvimento de medicamentos direcionados.</li><li>Compreensão da evolução humana.</li></ul>"
+        }
+      ]
+    },
+    {
+      "id": "information_space_age",
+      "name": "Era da Informação e Espacial",
+      "topics": [
+        {
+          "id": "sputnik_1",
+          "title": "Lançamento do Sputnik 1",
+          "dateRange": "4 de Outubro de 1957",
+          "coordinates": { "lat": 45.9, "lon": 63.3 },
+          "content": "<p>A União Soviética lançou o Sputnik 1, o primeiro satélite artificial da Terra, dando início à Corrida Espacial. Esta pequena esfera de metal, que apenas emitia um sinal de rádio, demonstrou a viabilidade da exploração espacial e teve um impacto profundo na política, tecnologia e educação em todo o mundo. A era espacial não apenas nos levou à Lua, mas também resultou em tecnologias que usamos todos os dias, como GPS e previsões meteorológicas avançadas.</p>"
+        },
+        {
+          "id": "james_webb_telescope",
+          "title": "Telescópio Espacial James Webb",
+          "dateRange": "Lançado em 2021",
+          "coordinates": { "lat": 34.05, "lon": -118.24 },
+          "content": "<p>O Telescópio Espacial James Webb (JWST) é o observatório espacial mais poderoso já construído, projetado para ver o universo em infravermelho. Ele pode observar as primeiras galáxias que se formaram após o Big Bang, estudar a formação de estrelas e planetas, e analisar as atmosferas de exoplanetas em busca de sinais de vida. Suas primeiras imagens, divulgadas em 2022, revelaram o universo com uma clareza e detalhe nunca antes vistos, abrindo um novo capítulo na cosmologia.</p><strong>Objetivos Científicos:</strong><ul><li>Estudar a primeira luz do universo.</li><li>Observar a formação de galáxias.</li><li>Analisar a atmosfera de exoplanetas.</li></ul>"
+        }
+      ]
+    }
+  ]
+}
