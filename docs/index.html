@@ -5,108 +5,112 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
 
-    <title>A Crônica da Humanidade: Uma Jornada Interativa</title>
-    <meta name="description" content="Explore a história da humanidade, seus avanços científicos e as mudanças fundamentais que moldaram nosso mundo. Uma experiência 3D interativa e detalhada.">
-    <meta name="keywords" content="História, Ciência, Tecnologia, Humanidade, Terra, 3D, Interativo, Educação, Cosmologia, Medicina, Avanços Tecnológicos">
+    <title>A Crônica da Humanidade: Uma Jornada Interativa V4.0</title>
+    <meta name="description" content="Explore a história da humanidade com realismo visual aprimorado, ciclo dia/noite, e visualização de dados de conexões históricas em um globo 3D interativo.">
+    <meta name="keywords" content="História, Ciência, 3D, Interativo, DataViz, Ciclo Dia/Noite, Atmosfera, Shader, Modo História, WebGL">
     <meta name="author" content="Equipe de Desenvolvimento Multidisciplinar">
     
-    <meta property="og:title" content="A Crônica da Humanidade: Uma Jornada Interativa">
-    <meta property="og:description" content="Explore a história e os avanços da humanidade em um globo terrestre 3D totalmente interativo.">
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://[seu-usuario].github.io/[seu-repositorio]/">
-    <meta property="og:image" content="https://[seu-usuario].github.io/[seu-repositorio]/assets/social-preview.jpg"> <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="A Crônica da Humanidade: Uma Jornada Interativa">
-    <meta name="twitter:description" content="Explore a história e os avanços da humanidade em um globo terrestre 3D totalmente interativo.">
-    <meta name="twitter:image" content="https://[seu-usuario].github.io/[seu-repositorio]/assets/social-preview.jpg">
-
+    <meta property="og:title" content="A Crônica da Humanidade: Uma Jornada Interativa V4.0">
+    <meta property="og:description" content="Explore a história da humanidade com realismo visual aprimorado, ciclo dia/noite, e visualização de dados de conexões históricas.">
     <link rel="stylesheet" href="style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700&family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
     <link rel="icon" href="favicon.ico" type="image/x-icon">
-
 </head>
 <body>
 
-    <a href="#main-content" class="skip-link">Pular para o Conteúdo Principal</a>
-
-    <div id="loading-screen">
-        <div class="loader-container">
-            <div class="loader-globe"></div>
-            <p class="loading-text">Inicializando Crônicas da Terra...</p>
-            <div class="progress-bar-container">
-                <div id="progress-bar" class="progress-bar"></div>
-            </div>
-            <p id="loading-asset-text" class="loading-asset-text">Carregando texturas...</p>
+    <div id="intro-screen">
+        <div class="intro-content">
+            <h1 class="intro-title">A Crônica da Humanidade</h1>
+            <p class="intro-tagline">Uma jornada interativa através da ciência, história e descobertas.</p>
+            <button id="enter-button" class="intro-button">Iniciar a Jornada</button>
         </div>
     </div>
 
-    <div id="globe-container">
-        </div>
+    <div id="main-experience" class="hidden">
+        <a href="#main-content" class="skip-link">Pular para o Conteúdo Principal</a>
 
-    <div id="ui-overlay">
-
-        <header class="main-header">
-            <h1 class="site-title">A Crônica da Humanidade</h1>
-            <div class="header-controls">
-                <button id="search-button" aria-label="Buscar conteúdo">
-                    </button>
-                <button id="settings-button" aria-label="Abrir configurações">
-                    </button>
+        <div id="globe-container">
             </div>
-        </header>
 
-        <main id="main-content" role="main" aria-live="polite">
+        <div id="ui-overlay">
+            <header class="main-header">
+                <h1 class="site-title">Crônicas</h1>
+                <div class="header-controls">
+                    <button id="story-mode-btn" aria-label="Iniciar Tour Guiado" title="Iniciar Tour Guiado">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 6L8 3l6 3 6-3v14l-6-3-6 3-6-3z"></path><line x1="8" y1="3" x2="8" y2="17"></line><line x1="14" y1="6" x2="14" y2="21"></line></svg>
+                    </button>
+                    <button id="search-button" aria-label="Buscar conteúdo" title="Buscar">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                    </button>
+                    <button id="settings-button" aria-label="Abrir configurações" title="Configurações">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0-.33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1.82.33 1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.82.33z"></path></svg>
+                    </button>
+                </div>
+            </header>
 
-            <nav id="timeline-navigation" class="sidebar-panel" aria-label="Navegação por Eras e Ciências">
-                <h2 class="panel-title">Explorar</h2>
-                <div id="timeline-container">
-                    </div>
-            </nav>
+            <main id="main-content" role="main" aria-live="polite">
+                <article id="info-panel" class="main-content-panel" hidden>
+                    </article>
+            </main>
 
-            <article id="info-panel" class="main-content-panel" hidden>
-                <button id="close-info-panel" class="close-button" aria-label="Fechar painel de informações">&times;</button>
-                <div id="info-content-wrapper">
-                    </div>
-            </article>
+            <div id="story-mode-ui" class="hidden">
+                <div class="story-progress">
+                    <span id="story-mode-title"></span>
+                    (<span id="story-mode-step"></span>)
+                </div>
+                <div class="story-controls">
+                    <button id="story-prev-btn" title="Etapa Anterior">&lt;</button>
+                    <button id="story-next-btn" title="Próxima Etapa">&gt;</button>
+                </div>
+                <button id="story-close-btn" title="Sair do Modo História">&times;</button>
+            </div>
+            
+            <footer id="timeline-bar">
+                <div id="era-selector-container"></div>
+                <div id="topics-scroller-container"></div>
+            </footer>
 
             <div id="search-modal" class="modal-container" hidden>
+                </div>
+            <div id="settings-modal" class="modal-container" hidden>
                 <div class="modal-content">
-                    <button id="close-search-modal" class="close-button" aria-label="Fechar busca">&times;</button>
-                    <h3>Buscar nas Crônicas</h3>
-                    <input type="search" id="search-input" placeholder="Digite um termo, data ou evento...">
-                    <div id="search-results">
+                    <button id="close-settings-modal" class="close-button" aria-label="Fechar configurações">&times;</button>
+                    <h3>Configurações de Visualização</h3>
+                    <div class="setting-item">
+                        <label for="globe-rotation-speed">Velocidade de Rotação:</label>
+                        <input type="range" id="globe-rotation-speed" min="0" max="0.0005" step="0.00001" value="0.0001">
+                    </div>
+                    <div class="setting-item data-layers">
+                        <label>Camadas de Dados:</label>
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="toggle-poi" checked>
+                            <label for="toggle-poi">Pontos de Interesse</label>
+                            <input type="checkbox" id="toggle-connections">
+                            <label for="toggle-connections">Conexões</label>
                         </div>
+                    </div>
+                    <div class="setting-item">
+                        <label>Aparência do Globo:</label>
+                        <button id="toggle-day-night" class="setting-button">Alternar Noite</button>
+                    </div>
+                    <div class="setting-item">
+                        <label for="sound-volume">Volume:</label>
+                        <input type="range" id="sound-volume" min="0" max="1" step="0.1" value="0.5">
+                    </div>
                 </div>
             </div>
-             
-            <div id="settings-modal" class="modal-container" hidden>
-                 <div class="modal-content">
-                     <button id="close-settings-modal" class="close-button" aria-label="Fechar configurações">&times;</button>
-                     <h3>Configurações de Visualização</h3>
-                     </div>
-            </div>
-
-        </main>
-
-        <footer class="main-footer">
-            <div class="globe-controls">
-                <button id="zoom-in" aria-label="Aproximar">+</button>
-                <button id="zoom-out" aria-label="Afastar">-</button>
-                <button id="reset-view" aria-label="Resetar visualização">
-                    </button>
-            </div>
-            <p class="credits">Um projeto de exploração digital. Criado com paixão.</p>
-        </footer>
-
+        </div>
     </div>
 
+    <audio id="ambient-sound" loop preload="auto" src="assets/audio/space-ambience.mp3"></audio>
+    <audio id="ui-click-sound" preload="auto" src="assets/audio/ui-click.wav"></audio>
+    <audio id="ui-swoosh-sound" preload="auto" src="assets/audio/ui-swoosh.wav"></audio>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
-
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js"></script>
-
     <script src="main.js" defer></script>
 
 </body>
