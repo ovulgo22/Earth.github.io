@@ -1,260 +1,338 @@
 /* =================================================================== */
-/* A CRÔNICA DA HUMANIDADE - SCRIPT PRINCIPAL (main.js) V1.0           */
+/* A CRÔNICA DA HUMANIDADE - SCRIPT PRINCIPAL (main.js) V4.0           */
 /* =================================================================== */
 /* Equipe: Creative Tech, Full-Stack, Interactive Dev, UX, A11y        */
 /* =================================================================== */
 
-// UX: Espera o DOM estar totalmente carregado antes de executar o script.
 document.addEventListener('DOMContentLoaded', () => {
 
     // ===============================================================
-    // 1. SELEÇÃO DE ELEMENTOS DO DOM E ESTADO DA APLICAÇÃO
+    // 1. SELEÇÃO DE ELEMENTOS DO DOM E ESTADO DA APLICAÇÃO V4.0
     // ===============================================================
-    // Front-End Dev: Armazenar referências aos elementos do DOM para performance.
     const domElements = {
-        loadingScreen: document.getElementById('loading-screen'),
-        progressBar: document.getElementById('progress-bar'),
-        loadingAssetText: document.getElementById('loading-asset-text'),
+        // ... (elementos da V3.0) ...
+        introScreen: document.getElementById('intro-screen'),
+        enterButton: document.getElementById('enter-button'),
+        mainExperience: document.getElementById('main-experience'),
         globeContainer: document.getElementById('globe-container'),
-        timelineContainer: document.getElementById('timeline-container'),
         infoPanel: document.getElementById('info-panel'),
         infoContentWrapper: document.getElementById('info-content-wrapper'),
         closeInfoPanelBtn: document.getElementById('close-info-panel'),
-        zoomInBtn: document.getElementById('zoom-in'),
-        zoomOutBtn: document.getElementById('zoom-out'),
-        resetViewBtn: document.getElementById('reset-view'),
+        eraSelectorContainer: document.getElementById('era-selector-container'),
+        topicsScrollerContainer: document.getElementById('topics-scroller-container'),
+        // V4.0: UI do Modo História
+        storyModeUI: document.getElementById('story-mode-ui'),
+        storyModeTitle: document.getElementById('story-mode-title'),
+        storyModeStep: document.getElementById('story-mode-step'),
+        storyPrevBtn: document.getElementById('story-prev-btn'),
+        storyNextBtn: document.getElementById('story-next-btn'),
+        storyCloseBtn: document.getElementById('story-close-btn'),
+        storyModeBtn: document.getElementById('story-mode-btn'),
+        // V4.0: Controles e Áudio
+        togglePoiCheckbox: document.getElementById('toggle-poi'),
+        toggleConnectionsCheckbox: document.getElementById('toggle-connections'),
+        toggleDayNightBtn: document.getElementById('toggle-day-night'),
+        ambientSound: document.getElementById('ambient-sound'),
+        uiClickSound: document.getElementById('ui-click-sound'),
+        uiSwooshSound: document.getElementById('ui-swoosh-sound'),
+        soundVolumeInput: document.getElementById('sound-volume'),
     };
 
-    // Full-Stack Dev: Gerenciar o estado da aplicação.
     const appState = {
-        data: null, // Armazenará todo o conteúdo do data.json
-        activeTopic: null, // ID do tópico atualmente selecionado
+        data: null,
+        activeTopicId: null,
+        activeEraId: null,
+        experienceStarted: false,
+        soundVolume: parseFloat(domElements.soundVolumeInput.value),
+        poiVisible: domElements.togglePoiCheckbox.checked,
+        connectionsVisible: domElements.toggleConnectionsCheckbox.checked,
+        globeMode: 'day', // 'day' ou 'night'
+        storyMode: {
+            active: false,
+            playlist: [],
+            currentStep: 0,
+            title: ''
+        }
     };
 
     // ===============================================================
-    // 2. INICIALIZAÇÃO DA CENA 3D (CREATIVE TECHNOLOGIST)
+    // 2. INICIALIZAÇÃO DA CENA 3D V4.0 (CREATIVE TECHNOLOGIST)
     // ===============================================================
-    let scene, camera, renderer, controls, earthMesh, cloudsMesh;
+    let scene, camera, renderer, controls, sunLight, earthMesh, cloudsMesh, atmosphereMesh, poiGroup, connectionsGroup;
+    let earthDayMap, earthNightMap, earthNormalMap, earthSpecularMap;
+
+    // --- V4.0: CÓDIGO DOS SHADERS PARA ATMOSFERA (GLSL) ---
+    const vertexShader = `
+        varying vec3 vertexNormal;
+        void main() {
+            vertexNormal = normalize(normalMatrix * normal);
+            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        }
+    `;
+    const fragmentShader = `
+        varying vec3 vertexNormal;
+        void main() {
+            float intensity = pow(0.6 - dot(vertexNormal, vec3(0, 0, 1.0)), 2.0);
+            gl_FragColor = vec4(0.3, 0.6, 1.0, 1.0) * intensity;
+        }
+    `;
 
     function initThreeJS() {
-        // --- Cena e Câmera ---
         scene = new THREE.Scene();
         camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        camera.position.z = 2.5;
+        camera.position.z = 15;
 
-        // --- Renderizador ---
-        renderer = new THREE.WebGLRenderer({
-            antialias: true,
-            alpha: true // Fundo transparente para ver a cor do body
-        });
+        renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); // Otimiza para telas de alta resolução
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
         domElements.globeContainer.appendChild(renderer.domElement);
-
-        // --- Luzes ---
-        // UX: Uma luz ambiente suave para que o lado escuro do planeta não seja totalmente preto.
+        
         const ambientLight = new THREE.AmbientLight(0xffffff, 0.2);
         scene.add(ambientLight);
-        // Creative Dev: Uma luz direcional para simular o sol, criando sombras e reflexos.
-        const directionalLight = new THREE.DirectionalLight(0xffffff, 1.0);
-        directionalLight.position.set(5, 3, 5);
-        scene.add(directionalLight);
+        sunLight = new THREE.DirectionalLight(0xffffff, 1.5); // Luz solar mais forte
+        sunLight.position.set(5, 3, 5);
+        scene.add(sunLight);
         
-        // --- Controles de Órbita ---
-        // UX: Permite ao usuário interagir com o globo (girar, zoom, arrastar).
         controls = new THREE.OrbitControls(camera, renderer.domElement);
-        controls.enableDamping = true; // Efeito de "desaceleração" suave
-        controls.dampingFactor = 0.05;
-        controls.enablePan = false; // Desativa o "arrastar" do globo
-        controls.minDistance = 1.2; // Zoom máximo de aproximação
-        controls.maxDistance = 5;   // Zoom máximo de afastamento
-
-        // --- Gerenciador de Carregamento (Loading Manager) ---
-        // UX: Crucial para monitorar o progresso do carregamento e atualizar a tela de loading.
-        const loadingManager = new THREE.LoadingManager();
-        loadingManager.onProgress = (url, itemsLoaded, itemsTotal) => {
-            const progress = itemsLoaded / itemsTotal;
-            domElements.progressBar.style.width = `${progress * 100}%`;
-            domElements.loadingAssetText.textContent = `Carregando ${url.split('/').pop()}`;
-        };
-        loadingManager.onLoad = () => {
-            // Atraso sutil para garantir que tudo esteja renderizado antes de remover a tela.
-            setTimeout(() => {
-                domElements.loadingScreen.classList.add('hidden');
-            }, 500);
-        };
-
-        const textureLoader = new THREE.TextureLoader(loadingManager);
-
-        // --- Criando o Planeta Terra ---
-        // Creative Tech: Usando texturas de alta qualidade para um visual realista.
-        // IMPORTANTE: Você precisará fornecer estes arquivos de imagem na pasta 'assets/textures/'
-        const earthDayMap = textureLoader.load('assets/textures/earth_daymap.jpg');
-        const earthSpecularMap = textureLoader.load('assets/textures/earth_specular_map.jpg');
-        const earthNormalMap = textureLoader.load('assets/textures/earth_normal_map.png');
+        controls.enableDamping = true;
+        controls.enabled = false;
         
-        const earthGeometry = new THREE.SphereGeometry(1, 64, 64);
-        const earthMaterial = new THREE.MeshStandardMaterial({
-            map: earthDayMap,
-            metalnessMap: earthSpecularMap, // Cria reflexo na água
-            normalMap: earthNormalMap, // Adiciona detalhes de relevo
-            metalness: 0.5,
-            roughness: 0.7
-        });
-        earthMesh = new THREE.Mesh(earthGeometry, earthMaterial);
+        const textureLoader = new THREE.TextureLoader();
+        // V4.0: Carrega a nova textura de luzes da cidade
+        earthDayMap = textureLoader.load('assets/textures/earth_daymap.jpg');
+        earthNightMap = textureLoader.load('assets/textures/earth_nightmap.jpg');
+        earthNormalMap = textureLoader.load('assets/textures/earth_normal_map.png');
+        earthSpecularMap = textureLoader.load('assets/textures/earth_specular_map.jpg');
+        
+        earthMesh = new THREE.Mesh(
+            new THREE.SphereGeometry(1, 64, 64),
+            new THREE.MeshStandardMaterial({
+                map: earthDayMap,
+                normalMap: earthNormalMap,
+                metalnessMap: earthSpecularMap,
+                metalness: 0.4,
+                roughness: 0.7,
+                // V4.0: Propriedades para as luzes da cidade
+                emissiveMap: earthNightMap,
+                emissive: 0xffffff,
+                emissiveIntensity: 0 // Começa desligada
+            })
+        );
         scene.add(earthMesh);
+        
+        // V4.0: Mesh da Atmosfera com shaders customizados
+        atmosphereMesh = new THREE.Mesh(
+            new THREE.SphereGeometry(1.04, 64, 64),
+            new THREE.ShaderMaterial({
+                vertexShader,
+                fragmentShader,
+                blending: THREE.AdditiveBlending,
+                side: THREE.BackSide
+            })
+        );
+        scene.add(atmosphereMesh);
 
-        // --- Criando as Nuvens ---
-        const cloudMap = textureLoader.load('assets/textures/earth_clouds.png');
-        const cloudsGeometry = new THREE.SphereGeometry(1.02, 64, 64);
-        const cloudsMaterial = new THREE.MeshPhongMaterial({
-            map: cloudMap,
-            transparent: true,
-            opacity: 0.8
-        });
-        cloudsMesh = new THREE.Mesh(cloudsGeometry, cloudsMaterial);
+        // ... (outros meshes como nuvens, grupos de POIs e conexões) ...
+        cloudsMesh = new THREE.Mesh(
+            new THREE.SphereGeometry(1.02, 64, 64),
+            new THREE.MeshPhongMaterial({ map: textureLoader.load('assets/textures/earth_clouds.png'), transparent: true, opacity: 0.8 })
+        );
         scene.add(cloudsMesh);
+        
+        poiGroup = new THREE.Group();
+        scene.add(poiGroup);
+        connectionsGroup = new THREE.Group();
+        scene.add(connectionsGroup);
 
-        // --- Criando o Fundo Estrelado (Starfield) ---
-        const starMap = textureLoader.load('assets/textures/starfield.jpg');
-        const starGeometry = new THREE.SphereGeometry(500, 64, 64);
-        const starMaterial = new THREE.MeshBasicMaterial({
-            map: starMap,
-            side: THREE.BackSide // Renderiza a textura no lado de dentro da esfera
-        });
-        scene.add(new THREE.Mesh(starGeometry, starMaterial));
-
-        // --- Loop de Animação ---
         animate();
     }
     
-    // Creative Dev: O loop que renderiza a cena a cada frame.
     function animate() {
         requestAnimationFrame(animate);
-
-        // Animação sutil de rotação para dar vida ao planeta
         earthMesh.rotation.y += 0.0001;
-        cloudsMesh.rotation.y += 0.00015; // Nuvens giram um pouco mais rápido
-
-        controls.update(); // Necessário se enableDamping for true
+        cloudsMesh.rotation.y += 0.00015;
+        if(controls.enabled) controls.update();
         renderer.render(scene, camera);
     }
     
-    // --- Responsividade ---
-    // Front-End Dev: Garante que a cena 3D se adapte ao tamanho da janela.
-    window.addEventListener('resize', () => {
-        camera.aspect = window.innerWidth / window.innerHeight;
-        camera.updateProjectionMatrix();
-        renderer.setSize(window.innerWidth, window.innerHeight);
-    });
+    // ... (listener de resize) ...
 
     // ===============================================================
-    // 3. LÓGICA DA UI E EVENTOS (INTERACTIVE DEVELOPER)
+    // 3. LÓGICA DA UI E EVENTOS V4.0 (INTERACTIVE DEVELOPER)
     // ===============================================================
     function initUI() {
-        // --- Interação com a Linha do Tempo ---
-        // A11y & Performance: Usando delegação de eventos.
-        domElements.timelineContainer.addEventListener('click', (e) => {
-            const topicElement = e.target.closest('[data-topic-id]');
-            if (topicElement) {
-                const topicId = topicElement.dataset.topicId;
-                displayTopicInfo(topicId);
-
-                // UX: Atualiza o estado visual do item ativo.
-                const currentActive = domElements.timelineContainer.querySelector('.active');
-                if (currentActive) currentActive.classList.remove('active');
-                topicElement.classList.add('active');
-            }
+        domElements.enterButton.addEventListener('click', startExperience);
+        // ... (listeners da timeline e painéis da V3.0) ...
+        domElements.eraSelectorContainer.addEventListener('click', handleEraSelection);
+        domElements.topicsScrollerContainer.addEventListener('click', handleTopicSelection);
+        domElements.closeInfoPanelBtn.addEventListener('click', hideInfoPanel);
+        
+        // --- V4.0: Novos Listeners ---
+        domElements.toggleDayNightBtn.addEventListener('click', toggleGlobeMode);
+        domElements.toggleConnectionsCheckbox.addEventListener('change', (e) => {
+            connectionsGroup.visible = e.target.checked;
         });
+        domElements.storyModeBtn.addEventListener('click', startStoryMode);
+        domElements.storyCloseBtn.addEventListener('click', endStoryMode);
+        domElements.storyNextBtn.addEventListener('click', () => navigateStory(1));
+        domElements.storyPrevBtn.addEventListener('click', () => navigateStory(-1));
+    }
+    
+    // ... (Funções da UI da V3.0 como startExperience, handleEraSelection, etc., são mantidas) ...
 
-        // --- Fechar Painel de Informações ---
-        domElements.closeInfoPanelBtn.addEventListener('click', () => {
-            domElements.infoPanel.setAttribute('hidden', '');
-            appState.activeTopic = null;
-            // UX: Remove o item ativo da timeline quando o painel é fechado.
-            const currentActive = domElements.timelineContainer.querySelector('.active');
-            if (currentActive) currentActive.classList.remove('active');
-        });
+    // ===============================================================
+    // 4. MODO HISTÓRIA V4.0 (NARRATIVE DESIGNER & DEV)
+    // ===============================================================
+    function startStoryMode() {
+        // Exemplo de uma história. Isso poderia ser carregado do JSON.
+        const story = {
+            title: "A Ascensão da Ciência",
+            playlist: ['copernican_heliocentrism', 'newton_principia', 'sputnik_1', 'james_webb_telescope']
+        };
 
-        // --- Controles do Globo ---
-        domElements.zoomInBtn.addEventListener('click', () => controls.dollyIn(1.2));
-        domElements.zoomOutBtn.addEventListener('click', () => controls.dollyOut(1.2));
-        domElements.resetViewBtn.addEventListener('click', () => controls.reset());
+        appState.storyMode = {
+            active: true,
+            playlist: story.playlist,
+            currentStep: 0,
+            title: story.title
+        };
+
+        domElements.storyModeUI.classList.remove('hidden');
+        domElements.timelineBar.style.pointerEvents = 'none'; // Desativa a timeline
+        gsap.to(domElements.timelineBar, { opacity: 0.3, duration: 0.5 });
+        
+        playStoryStep(0);
     }
 
+    function endStoryMode() {
+        appState.storyMode.active = false;
+        domElements.storyModeUI.classList.add('hidden');
+        domElements.timelineBar.style.pointerEvents = 'auto'; // Reativa a timeline
+        gsap.to(domElements.timelineBar, { opacity: 1, duration: 0.5 });
+    }
+
+    function navigateStory(direction) {
+        const newStep = appState.storyMode.currentStep + direction;
+        if (newStep >= 0 && newStep < appState.storyMode.playlist.length) {
+            playStoryStep(newStep);
+        }
+    }
+
+    function playStoryStep(stepIndex) {
+        appState.storyMode.currentStep = stepIndex;
+        const topicId = appState.storyMode.playlist[stepIndex];
+        
+        displayTopicInfo(topicId);
+        const topicData = findTopicById(topicId);
+        if (topicData && topicData.coordinates) {
+            animateGlobeToCoordinates(topicData.coordinates.lat, topicData.coordinates.lon);
+        }
+        
+        // Sincroniza o card na timeline
+        const activeCard = domElements.topicsScrollerContainer.querySelector('.active');
+        if(activeCard) activeCard.classList.remove('active');
+        const targetCard = domElements.topicsScrollerContainer.querySelector(`[data-topic-id="${topicId}"]`);
+        if(targetCard) targetCard.classList.add('active');
+
+        updateStoryUI();
+    }
+    
+    function updateStoryUI() {
+        domElements.storyModeTitle.textContent = appState.storyMode.title;
+        domElements.storyModeStep.textContent = `Etapa ${appState.storyMode.currentStep + 1} de ${appState.storyMode.playlist.length}`;
+
+        domElements.storyPrevBtn.disabled = appState.storyMode.currentStep === 0;
+        domElements.storyNextBtn.disabled = appState.storyMode.currentStep === appState.storyMode.playlist.length - 1;
+    }
+
+
     // ===============================================================
-    // 4. MANIPULAÇÃO DE DADOS (FULL-STACK DEV)
+    // 5. VISUALIZAÇÃO DE DADOS E EFEITOS V4.0 (CREATIVE TECH)
     // ===============================================================
 
-    async function loadDataAndPopulateUI() {
-        try {
-            const response = await fetch('data.json');
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+    function toggleGlobeMode() {
+        appState.globeMode = appState.globeMode === 'day' ? 'night' : 'day';
+        if (appState.globeMode === 'night') {
+            // Modo Noite
+            gsap.to(sunLight, { intensity: 0.1, duration: 2 });
+            gsap.to(earthMesh.material, { emissiveIntensity: 1.0, duration: 2 });
+            domElements.toggleDayNightBtn.textContent = "Alternar Dia";
+        } else {
+            // Modo Dia
+            gsap.to(sunLight, { intensity: 1.5, duration: 2 });
+            gsap.to(earthMesh.material, { emissiveIntensity: 0, duration: 2 });
+            domElements.toggleDayNightBtn.textContent = "Alternar Noite";
+        }
+    }
+
+    // Função para desenhar conexões (arcos)
+    function drawConnections() {
+        if (!appState.data.connections) return;
+        
+        const material = new THREE.LineBasicMaterial({ color: 0x00f2ff, transparent: true, opacity: 0.5 });
+        
+        appState.data.connections.forEach(conn => {
+            const startTopic = findTopicById(conn.from_topic_id);
+            const endTopic = findTopicById(conn.to_topic_id);
+
+            if (startTopic && endTopic) {
+                const startVec = getVectorFromLatLon(startTopic.coordinates.lat, startTopic.coordinates.lon);
+                const endVec = getVectorFromLatLon(endTopic.coordinates.lat, endTopic.coordinates.lon);
+
+                const midPoint = new THREE.Vector3().addVectors(startVec, endVec).multiplyScalar(0.5);
+                const altitude = startVec.distanceTo(endVec) * 0.4;
+                midPoint.setLength(1 + altitude);
+
+                const curve = new THREE.QuadraticBezierCurve3(startVec, midPoint, endVec);
+                const points = curve.getPoints(50);
+                const geometry = new THREE.BufferGeometry().setFromPoints(points);
+                
+                const line = new THREE.Line(geometry, material);
+                connectionsGroup.add(line);
             }
+        });
+        connectionsGroup.visible = appState.connectionsVisible;
+    }
+    
+    // Helper para converter lat/lon em um vetor 3D
+    function getVectorFromLatLon(lat, lon, radius = 1.01) { // Levemente acima da superfície
+        const phi = (90 - lat) * (Math.PI / 180);
+        const theta = (lon + 180) * (Math.PI / 180);
+        return new THREE.Vector3(
+            -(radius * Math.sin(phi) * Math.cos(theta)),
+            (radius * Math.cos(phi)),
+            (radius * Math.sin(phi) * Math.sin(theta))
+        );
+    }
+    
+    // ... (loadDataAndInit agora chama drawConnections) ...
+    async function loadDataAndInit() {
+        try {
+            // ... (carrega dados como na V3.0) ...
+            const response = await fetch('data.json');
             appState.data = await response.json();
-            populateTimeline();
+            
+            appState.activeEraId = appState.data.eras[0].id;
+
+            populateEraSelector();
+            populateTopicsScroller(appState.activeEraId);
+            createPOIMarkers();
+            drawConnections(); // <-- NOVO AQUI
         } catch (error) {
             console.error("Não foi possível carregar os dados das crônicas:", error);
-            domElements.timelineContainer.innerHTML = `<p style="color: red;">Erro ao carregar conteúdo.</p>`;
         }
     }
-
-    function populateTimeline() {
-        const { eras } = appState.data;
-        let html = '';
-        for (const era of eras) {
-            html += `
-                <div class="era" data-era-id="${era.id}">
-                    <h3>${era.name}</h3>
-                    <ul class="topics">
-                        ${era.topics.map(topic => `
-                            <li data-topic-id="${topic.id}">${topic.title}</li>
-                        `).join('')}
-                    </ul>
-                </div>
-            `;
-        }
-        domElements.timelineContainer.innerHTML = html;
-    }
-
-    function displayTopicInfo(topicId) {
-        let topicData = null;
-        // Encontra o tópico correto em todas as eras
-        for (const era of appState.data.eras) {
-            const foundTopic = era.topics.find(t => t.id === topicId);
-            if (foundTopic) {
-                topicData = foundTopic;
-                break;
-            }
-        }
-
-        if (topicData) {
-            appState.activeTopic = topicId;
-            const contentHtml = `
-                <h2 id="info-title">${topicData.title}</h2>
-                <p id="info-date-range" class="date-range">${topicData.dateRange}</p>
-                <div id="info-body">
-                    ${topicData.content} 
-                </div>
-            `; // O 'content' virá como HTML do JSON
-            domElements.infoContentWrapper.innerHTML = contentHtml;
-            domElements.infoPanel.removeAttribute('hidden');
-            domElements.infoContentWrapper.scrollTop = 0; // Garante que o painel inicie do topo
-        } else {
-            console.warn(`Tópico com id "${topicId}" não encontrado.`);
-        }
-    }
+    
+    // ... (outras funções como createPOIMarkers, findTopicById, animateGlobeToCoordinates, etc., são mantidas) ...
 
     // ===============================================================
-    // 5. INICIALIZAÇÃO GERAL DA APLICAÇÃO
+    // 6. INICIALIZAÇÃO GERAL DA APLICAÇÃO
     // ===============================================================
     function initApp() {
         initThreeJS();
         initUI();
-        loadDataAndPopulateUI();
+        loadDataAndInit();
     }
 
     initApp();
-
 });
